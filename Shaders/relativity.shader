@@ -1,3 +1,5 @@
+// Adapted from https://github.com/MITGameLab/OpenRelativity
+
 Shader "Relativity/ColourShift"
 {
     Properties
