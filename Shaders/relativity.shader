@@ -18,6 +18,9 @@ Shader "LeekRelativity/ColourShift"
     // Not sure when this^ got added, seems like unity did it automatically some update?
     #pragma exclude_renderers xbox360
     #pragma glsl
+
+    #pragma enable_d3d11_debug_symbols
+
     #include "UnityCG.cginc"
 
     struct vertexFragmentData
@@ -214,8 +217,6 @@ Shader "LeekRelativity/ColourShift"
 
     SubShader
     {
-        Blend One Zero
-
         Pass
         {
             Cull Off ZWrite On
@@ -232,9 +233,10 @@ Shader "LeekRelativity/ColourShift"
 
             #pragma vertex vert
             #pragma fragment frag
-                #pragma target 3.0
+            #pragma target 3.0
 
             ENDCG
         }
     }
+    Fallback "Unlit/Transparent"
 }
