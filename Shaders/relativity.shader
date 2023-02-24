@@ -1,6 +1,6 @@
 // Adapted from https://github.com/MITGameLab/OpenRelativity
 
-Shader "Relativity/ColourShift"
+Shader "LeekRelativity/ColourShift"
 {
     Properties
     {
@@ -54,7 +54,7 @@ Shader "Relativity/ColourShift"
         vertexFragmentData output;
 
         output.pos = mul(unity_ObjectToWorld, vertexData.vertex);
-        output.pos -= _playerOffset;
+        output.pos -= _playerPos;
 
         output.uv1.xy = vertexData.texcoord;
 
@@ -186,21 +186,29 @@ Shader "Relativity/ColourShift"
             output.toDraw = 1;
         }
 
-        refLocationInWorld += _playerOffset;
+        refLocationInWorld += _playerPos;
 
         // Transform the vertex back in to local space for the mesh to use it.
 
         output.pos = mul(unity_WorldToObject * 1.0, refLocationInWorld);
 
         output.pos2 = mul(unity_ObjectToWorld, object.pos);
-        output.pos2 -= _playerOffset;
+        output.pos2 -= _playerPos;
 
         output.pos = UnityObjectToClipPos(output.pos);
+
+        print("Output pos: " + output.pos + "; Player Vel: " + _playerVelocity.magnitude)
 
         return output;
     }
 
     // Colour shaders stuff goes here
+
+    //Per pixel shader, does color modifications
+    float4 frag(vertexFragmentData input) : COLOR
+    {
+        return float4(input.vRel.x, input.vRel.y, input.vRel.z, 1.0);
+    }
 
     ENDCG
 
