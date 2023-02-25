@@ -1,4 +1,4 @@
-Shader "Unlit/test"
+Shader "LeekRelativity/test"
 {
     Properties
     {
