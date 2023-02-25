@@ -41,7 +41,7 @@ Shader "LeekRelativity/ColourShift"
             #pragma fragment frag
             #pragma target 3.0
 
-            struct vertexFragmentData
+            struct v2f
             {
                 float4 pos : POSITION;
                 float4 posAbs : TEXCOORD0;
@@ -71,9 +71,9 @@ Shader "LeekRelativity/ColourShift"
             uniform float4 _MainTex_TexelSize;
             uniform float4 _CameraDepthTexture_ST;
 
-            vertexFragmentData vert(appdata_base vertexData)
+            v2f vert(appdata_base vertexData)
             {
-                vertexFragmentData output;
+                v2f output;
                 UNITY_SETUP_INSTANCE_ID(vertexData);
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(output);
 
@@ -153,11 +153,18 @@ Shader "LeekRelativity/ColourShift"
                         rotatedVInWorld.z = (_vInWorld.z) * _vLight;
                     }
 
-                    float posSquareNorm = refLocationInWorld.x * refLocationInWorld.x + refLocationInWorld.y * refLocationInWorld.y + refLocationInWorld.z * refLocationInWorld.z;
+                    float posSquareNorm = refLocationInWorld.x * refLocationInWorld.x 
+                        + refLocationInWorld.y * refLocationInWorld.y
+                        + refLocationInWorld.z * refLocationInWorld.z;
 
-                    float posDotRotatedV = refLocationInWorld.x * rotatedVInWorld.x + refLocationInWorld.y * rotatedVInWorld.y + refLocationInWorld.z * rotatedVInWorld.z;
+                    float posDotRotatedV = refLocationInWorld.x * rotatedVInWorld.x
+                        + refLocationInWorld.y * rotatedVInWorld.y
+                        + refLocationInWorld.z * rotatedVInWorld.z;
 
-                    float squareLightVDifference = _vLight * _vLight - (rotatedVInWorld.x * rotatedVInWorld.x + rotatedVInWorld.y * rotatedVInWorld.y + rotatedVInWorld.z * rotatedVInWorld.z);
+                    float squareLightVDifference = _vLight * _vLight
+                        - (rotatedVInWorld.x * rotatedVInWorld.x
+                            + rotatedVInWorld.y * rotatedVInWorld.y
+                            + rotatedVInWorld.z * rotatedVInWorld.z);
 
                     // Unsure what the resulting quantity is here - it's a root of the polynomial:
                     // 
@@ -168,7 +175,8 @@ Shader "LeekRelativity/ColourShift"
                     // is a relativistic approximation of a spatial movement taylor series of order 2.
                     // Since I've provided these notes and this is all very likely to change under 
                     // the arbitrary movement paradigm, I won't be careful about renaming this variable.
-                    float tisw = (float)(2 * posDotRotatedV - sqrt(((float)float(4)) * posDotRotatedV * posDotRotatedV - ((float)float(-4)) * posSquareNorm * squareLightVDifference)) / (((float)float(2)) * squareLightVDifference);
+                    float tisw = (float)(2 * posDotRotatedV - sqrt(((float)float(4)) * posDotRotatedV * posDotRotatedV 
+                        - ((float)float(-4)) * posSquareNorm * squareLightVDifference)) / (((float)float(2)) * squareLightVDifference);
 
                     // Check to make sure that objects that have velocity do not appear before they were created (Moving Person objects behind Sender objects) 
                     if (_worldTime + tisw > _startTime || _startTime == 0) {
@@ -229,7 +237,7 @@ Shader "LeekRelativity/ColourShift"
             // Colour shaders stuff goes here
 
             //Per pixel shader, does color modifications
-            float4 frag(vertexFragmentData input) : SV_Target
+            float4 frag(v2f input) : SV_Target
             {
                 float mag = sqrt(input.vRel.x * input.vRel.x + input.vRel.y * input.vRel.y + input.vRel.z * input.vRel.z);
                 mag = min(mag, 0.01);
