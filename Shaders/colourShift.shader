@@ -60,7 +60,7 @@ Shader "LeekRelativity/ColourShift"
             float4 _vInWorld = float4(0, 0, 0, 0);
             float4 _vPlayer = float4(0, 0, 0, 0);
             float4 _playerPos = float4(0, 0, 0, 0);
-            float _vLight = 100;
+            float _vLight = 1;
             float _worldTime = 0;
             float _startTime = 0;
             float _useColorShift = 1;
@@ -134,8 +134,8 @@ Shader "LeekRelativity/ColourShift"
                             + output.pos.z * (uObjectY * sinAngle);
                         refLocationInWorld.y = output.pos.x * (uObjectY * uObjectX * (1 - cosAngle))
                             + output.pos.y * (cosAngle + uObjectY * uObjectY * (1 - cosAngle))
-                            + output.pos.z * (uObjectX * sinAngle);
-                        refLocationInWorld.z = output.pos.x * (uObjectY * sinAngle)
+                            - output.pos.z * (uObjectX * sinAngle);
+                        refLocationInWorld.z = output.pos.x * (-uObjectY * sinAngle)
                             + output.pos.y * (uObjectX * sinAngle)
                             + output.pos.z * (cosAngle);
                     }
@@ -146,6 +146,12 @@ Shader "LeekRelativity/ColourShift"
                         rotatedVInWorld.x = (_vInWorld.x * (cosAngle + uObjectX * uObjectX * (1 - cosAngle))
                             + _vInWorld.y * (uObjectX * uObjectY * (1 - cosAngle))
                             + _vInWorld.z * (uObjectY * sinAngle)) * _vLight;
+                        rotatedVInWorld.y = (_vInWorld.x * (uObjectY * uObjectX * (1 - cosAngle))
+                            + _vInWorld.y * (cosAngle + uObjectY * uObjectY * (1 - cosAngle))
+                            - _vInWorld.z * (uObjectX * sinAngle)) * _vLight;
+                        rotatedVInWorld.z = (_vInWorld.x * (-uObjectY * sinAngle)
+                            + _vInWorld.y * (uObjectX * sinAngle)
+                            + _vInWorld.z * (cosAngle)) * _vLight;
                     }
                     else {
                         rotatedVInWorld.x = (_vInWorld.x) * _vLight;
@@ -212,7 +218,7 @@ Shader "LeekRelativity/ColourShift"
                         refLocationInWorld.z = refLocationInWorldXStored * (uObjectY * sinAngle)
                             - refLocationInWorldYStored * (uObjectX * sinAngle)
                             + refLocationInWorld.z * (cosAngle);
-                    }
+                     }
                 }
                 else {
                     output.toDraw = 1;
@@ -239,9 +245,10 @@ Shader "LeekRelativity/ColourShift"
             //Per pixel shader, does color modifications
             float4 frag(v2f input) : SV_Target
             {
-                float mag = sqrt(input.vRel.x * input.vRel.x + input.vRel.y * input.vRel.y + input.vRel.z * input.vRel.z);
-                mag = min(mag, 0.01);
-                return fixed4(input.vRel.x / mag, input.vRel.y / mag, input.vRel.z / mag, 1.0);
+                // float mag = sqrt(input.vRel.x * input.vRel.x + input.vRel.y * input.vRel.y + input.vRel.z * input.vRel.z);
+                // mag = min(mag, 0.01);
+                // return fixed4(input.vRel.x / mag, input.vRel.y / mag, input.vRel.z / mag, 1.0);
+                return fixed4(1.0, 1.0, 1.0, 1.0);
             }
 
             ENDCG
