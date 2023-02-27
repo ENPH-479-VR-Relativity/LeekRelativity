@@ -117,7 +117,7 @@ Shader "LeekRelativity/ColourShift"
                         angle = -acos(-_vPlayer.z / speed);
                         if (_vPlayer.x != 0 || _vPlayer.y != 0) {
                             uObjectX = _vPlayer.y / sqrt(_vPlayer.x * _vPlayer.x + _vPlayer.y * _vPlayer.y);
-                            uObjectY = _vPlayer.x / sqrt(_vPlayer.x * _vPlayer.x + _vPlayer.y * _vPlayer.y);
+                            uObjectY = -_vPlayer.x / sqrt(_vPlayer.x * _vPlayer.x + _vPlayer.y * _vPlayer.y);
                         }
                         else {
                             uObjectX = 0;

@@ -15,8 +15,9 @@ public class PlayerState : MonoBehaviour
     {
         Position = playerProperties.Position;
         Velocity = playerProperties.Velocity;
-        Shader.SetGlobalVector("_playerPos", new Vector4(Position.x, Position.y, Position.z, 0));
-        Shader.SetGlobalVector("_vPlayer", new Vector4(Velocity.x, Velocity.y, Velocity.z, 0));
+        Shader.SetGlobalVector("_xp", new Vector4(Position.x, Position.y, Position.z, 0));
+        Shader.SetGlobalVector("_vp", new Vector4(Velocity.x, Velocity.y, Velocity.z, 0));
+        Shader.SetGlobalVector("_xo", new Vector4((float)2.3917, (float)1.4782, (float)0.5710, (float)0.000));
 
         print("Position: " + Position);
         print("Velocity: " + Velocity + "; magnitude: " + Velocity.magnitude);
