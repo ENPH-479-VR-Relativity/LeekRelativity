@@ -60,7 +60,7 @@ Shader "LeekRelativity/ColourShift"
             float4 _vInWorld = float4(0, 0, 0, 0);
             float4 _vPlayer = float4(0, 0, 0, 0);
             float4 _playerPos = float4(0, 0, 0, 0);
-            float _vLight = 1;
+            float _vLight = 5;
             float _worldTime = 0;
             float _startTime = 0;
             float _useColorShift = 1;
@@ -117,7 +117,7 @@ Shader "LeekRelativity/ColourShift"
                         angle = -acos(-_vPlayer.z / speed);
                         if (_vPlayer.x != 0 || _vPlayer.y != 0) {
                             uObjectX = _vPlayer.y / sqrt(_vPlayer.x * _vPlayer.x + _vPlayer.y * _vPlayer.y);
-                            uObjectY = _vPlayer.x / sqrt(_vPlayer.x * _vPlayer.x + _vPlayer.y * _vPlayer.y);
+                            uObjectY = -_vPlayer.x / sqrt(_vPlayer.x * _vPlayer.x + _vPlayer.y * _vPlayer.y);
                         }
                         else {
                             uObjectX = 0;
@@ -129,7 +129,7 @@ Shader "LeekRelativity/ColourShift"
 
                         // Rotate player velocity to all z; equations concern movement in one direction
                         // NOTE: will be deprecated when we account for arbitrarily moving objects
-                        refLocationInWorld.x = output.pos.x * (cosAngle + uObjectX * uObjectX * (1 - cosAngle))
+                        /*refLocationInWorld.x = output.pos.x * (cosAngle + uObjectX * uObjectX * (1 - cosAngle))
                             + output.pos.y * (uObjectX * uObjectY * (1 - cosAngle))
                             + output.pos.z * (uObjectY * sinAngle);
                         refLocationInWorld.y = output.pos.x * (uObjectY * uObjectX * (1 - cosAngle))
@@ -137,11 +137,11 @@ Shader "LeekRelativity/ColourShift"
                             - output.pos.z * (uObjectX * sinAngle);
                         refLocationInWorld.z = output.pos.x * (-uObjectY * sinAngle)
                             + output.pos.y * (uObjectX * sinAngle)
-                            + output.pos.z * (cosAngle);
+                            + output.pos.z * (cosAngle);*/
                     }
 
                     // Rotate velocity
-                    float4 rotatedVInWorld = float4(0, 0, 0, 0);
+                    /*float4 rotatedVInWorld = float4(0, 0, 0, 0);
                     if (speed != 0) {
                         rotatedVInWorld.x = (_vInWorld.x * (cosAngle + uObjectX * uObjectX * (1 - cosAngle))
                             + _vInWorld.y * (uObjectX * uObjectY * (1 - cosAngle))
@@ -170,7 +170,7 @@ Shader "LeekRelativity/ColourShift"
                     float squareLightVDifference = _vLight * _vLight
                         - (rotatedVInWorld.x * rotatedVInWorld.x
                             + rotatedVInWorld.y * rotatedVInWorld.y
-                            + rotatedVInWorld.z * rotatedVInWorld.z);
+                            + rotatedVInWorld.z * rotatedVInWorld.z);*/
 
                     // Unsure what the resulting quantity is here - it's a root of the polynomial:
                     // 
@@ -181,44 +181,44 @@ Shader "LeekRelativity/ColourShift"
                     // is a relativistic approximation of a spatial movement taylor series of order 2.
                     // Since I've provided these notes and this is all very likely to change under 
                     // the arbitrary movement paradigm, I won't be careful about renaming this variable.
-                    float tisw = (float)(2 * posDotRotatedV - sqrt(((float)float(4)) * posDotRotatedV * posDotRotatedV 
-                        - ((float)float(-4)) * posSquareNorm * squareLightVDifference)) / (((float)float(2)) * squareLightVDifference);
+                    //float tisw = (float)(2 * posDotRotatedV - sqrt(((float)float(4)) * posDotRotatedV * posDotRotatedV 
+                    //    - ((float)float(-4)) * posSquareNorm * squareLightVDifference)) / (((float)float(2)) * squareLightVDifference);
 
-                    // Check to make sure that objects that have velocity do not appear before they were created (Moving Person objects behind Sender objects) 
-                    if (_worldTime + tisw > _startTime || _startTime == 0) {
-                        output.toDraw = 1;
-                    }
-                    else {
-                        output.toDraw = 0;
-                    }
+                    //// Check to make sure that objects that have velocity do not appear before they were created (Moving Person objects behind Sender objects) 
+                    //if (_worldTime + tisw > _startTime || _startTime == 0) {
+                    //    output.toDraw = 1;
+                    //}
+                    //else {
+                    //    output.toDraw = 0;
+                    //}
 
-                    // get the new position offset, based on the new time we just found
-                    // Should only be in the Z direction
-                    refLocationInWorld.x += rotatedVInWorld.x * tisw;
-                    refLocationInWorld.y += rotatedVInWorld.y * tisw;
-                    refLocationInWorld.z += rotatedVInWorld.z * tisw;
+                    //// get the new position offset, based on the new time we just found
+                    //// Should only be in the Z direction
+                    //refLocationInWorld.x += rotatedVInWorld.x * tisw;
+                    //refLocationInWorld.y += rotatedVInWorld.y * tisw;
+                    //refLocationInWorld.z += rotatedVInWorld.z * tisw;
 
-                    // Apply Lorentz Transform
-                    float newZ = (((float)speed * _vLight) * tisw);
+                    //// Apply Lorentz Transform
+                    //float newZ = (((float)speed * _vLight) * tisw);
 
-                    newZ = refLocationInWorld.z + newZ;
-                    newZ /= (float)sqrt(1 - (speed * speed));
-                    refLocationInWorld.z = newZ;
+                    //newZ = refLocationInWorld.z + newZ;
+                    //newZ /= (float)sqrt(1 - (speed * speed));
+                    //refLocationInWorld.z = newZ;
 
-                    if (speed != 0) {
-                        float refLocationInWorldXStored = refLocationInWorld.x;
-                        float refLocationInWorldYStored = refLocationInWorld.y;
+                    //if (speed != 0) {
+                    //    float refLocationInWorldXStored = refLocationInWorld.x;
+                    //    float refLocationInWorldYStored = refLocationInWorld.y;
 
-                        refLocationInWorld.x = refLocationInWorld.x * (cosAngle + uObjectX * uObjectX * (1 - cosAngle))
-                            + refLocationInWorld.y * (uObjectX * uObjectY * (1 - cosAngle))
-                            - refLocationInWorld.z * (uObjectY * sinAngle);
-                        refLocationInWorld.y = refLocationInWorldXStored * (uObjectY * uObjectX * (1 - cosAngle))
-                            + refLocationInWorld.y * (cosAngle + uObjectY * uObjectY * (1 - cosAngle))
-                            + refLocationInWorld.z * (uObjectX * sinAngle);
-                        refLocationInWorld.z = refLocationInWorldXStored * (uObjectY * sinAngle)
-                            - refLocationInWorldYStored * (uObjectX * sinAngle)
-                            + refLocationInWorld.z * (cosAngle);
-                     }
+                    //    refLocationInWorld.x = refLocationInWorld.x * (cosAngle + uObjectX * uObjectX * (1 - cosAngle))
+                    //        + refLocationInWorld.y * (uObjectX * uObjectY * (1 - cosAngle))
+                    //        - refLocationInWorld.z * (uObjectY * sinAngle);
+                    //    refLocationInWorld.y = refLocationInWorldXStored * (uObjectY * uObjectX * (1 - cosAngle))
+                    //        + refLocationInWorld.y * (cosAngle + uObjectY * uObjectY * (1 - cosAngle))
+                    //        + refLocationInWorld.z * (uObjectX * sinAngle);
+                    //    refLocationInWorld.z = refLocationInWorldXStored * (uObjectY * sinAngle)
+                    //        - refLocationInWorldYStored * (uObjectX * sinAngle)
+                    //        + refLocationInWorld.z * (cosAngle);
+                    // }
                 }
                 else {
                     output.toDraw = 1;
@@ -245,9 +245,6 @@ Shader "LeekRelativity/ColourShift"
             //Per pixel shader, does color modifications
             float4 frag(v2f input) : SV_Target
             {
-                // float mag = sqrt(input.vRel.x * input.vRel.x + input.vRel.y * input.vRel.y + input.vRel.z * input.vRel.z);
-                // mag = min(mag, 0.01);
-                // return fixed4(input.vRel.x / mag, input.vRel.y / mag, input.vRel.z / mag, 1.0);
                 return fixed4(1.0, 1.0, 1.0, 1.0);
             }
 
