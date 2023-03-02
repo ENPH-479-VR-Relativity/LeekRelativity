@@ -20,10 +20,11 @@ Shader "LeekRelativity/test"
 
             float4 _vp = float4(0, 0, 0, 0); // Player velocity
             float4 _xp = float4(0, 0, 0, 0); // Player position
+            float4 _wp = float4(0, 0, 0, 0); // Player angular velocity
             float4 _vo = float4(0, 0, 0, 0); // Object velocity
             float4 _xo = float4(0, 0, 0, 0); // Object position
             float4 _wo = float4(0, 0, 0, 0); // Object angular velocity
-            float _vLight = (float)5.0;
+            float _vLight = 5.0; // Speed of light
 
             struct v2f
             {
@@ -45,38 +46,46 @@ Shader "LeekRelativity/test"
                 o.xv = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
 
-                float4 xvRelO = v.vertex - _vo; // Position of vertex relative to object.
+                float4 xvRelO = v.vertex - _xo; // Position of vertex relative to object.
+                float4 xvRelP = v.vertex - _xp; // Position of vertex relative to player.
 
-                float4 vvAngular = float4(
+                float4 vvAngObj = float4(
                         _wo.y * xvRelO.z - _wo.z * xvRelO.y,
                         _wo.z * xvRelO.x - _wo.x * xvRelO.z,
                         _wo.x * xvRelO.y - _wo.y * xvRelO.x,
                         0
-                    ); // Angular component of linear vertex velocity. Due to rotation of object.
-                float4 vv = vvAngular + _vo; // Velocity of vertex (stuff from angular velocity + linear velocity of object).
+                    ); // Angular component of linear vertex velocity due to rotation of object.
 
-                float4 vvRelP = vv - _vp; // Velocity of vertex relative to player. 
-                float4 xvRelP = v.vertex - _xp; // Position of vertex relative to player.
+                float4 vvAngPlr = float4(
+                    _wp.y * xvRelP.z - _wp.z * xvRelP.y,
+                    _wp.z * xvRelP.x - _wp.x * xvRelP.z,
+                    _wp.x * xvRelP.y - _wp.y * xvRelP.x,
+                    0
+                    ); // Angular component of linear vertex velocity due to rotation of player.
+
+                float4 vv = vvAngObj + _vo; // Velocity of vertex in the Player's view (stuff from angular velocity + linear velocity of object).
+
+                float4 vvRelP = vv + vvAngPlr - _vp; // Velocity of vertex relative to player (adds effect of player's ang. velocity). 
 
                 float playerSpeed = sqrt(_vp.x * _vp.x + _vp.y + _vp.y + _vp.z + _vp.z); // Speed of the player.
                 float vertexSpeed = sqrt(vv.x * vv.x + vv.y + vv.y + vv.z * vv.z); // Speed of the vertex.
 
-                float vRelPSpeed = sqrt(vvRelP.x * vvRelP.x + vvRelP.y * vvRelP.y + vvRelP.z * vvRelP.z); // Speed of the vertex relative to the player.
-                float vRelPDist = sqrt(xvRelP.x * xvRelP.x + xvRelP.y * xvRelP.y + xvRelP.z * xvRelP.z); // Distance of the vertex relative to the player.
+                float vvRelPSpeed = sqrt(vvRelP.x * vvRelP.x + vvRelP.y * vvRelP.y + vvRelP.z * vvRelP.z); // Speed of the vertex relative to the player.
+                float vvRelPDist = sqrt(xvRelP.x * xvRelP.x + xvRelP.y * xvRelP.y + xvRelP.z * xvRelP.z); // Distance of the vertex relative to the player.
 
                 float xvDotVvRelP = vvRelP.x * xvRelP.x + vvRelP.y * xvRelP.y + vvRelP.z * xvRelP.z; // Dot product of vertex velocity and position, both rel. to player.
-                float cosAngXvVvRelP = xvDotVvRelP / (vRelPSpeed * vRelPDist); // Cosine of the angle between the relative velocity of the vertex and the relative position of the vertex (both rel. to player).
+                float cosAngXvVvRelP = xvDotVvRelP / (vvRelPSpeed * vvRelPDist); // Cosine of the angle between the relative velocity of the vertex and the relative position of the vertex (both rel. to player).
 
-                float beta = vRelPSpeed / 1.5; // Beta as in Lorentz factor formula
+                float beta = vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
                 float gamma = 1 / sqrt(1 - min(beta * beta, 0.99999)); // Lorentz factor
 
                 o.doppler = max(abs(1 / (gamma * (1 + beta * cosAngXvVvRelP))), 0.00001); // Doppler factor, player frame of reference.
                 float dopplerV = gamma * (1 - beta * cosAngXvVvRelP); // Doppler factor, vertex frame of reference.
                 
-                // o.doppler = vRelPSpeed / 2;
-                // o.doppler = vRelPSpeed / 2;
+                // o.doppler = vvRelPSpeed / 2;
+                // o.doppler = vvRelPSpeed / 2;
 
-                o.irrad = 1 / (pow(dopplerV, 5) * vRelPDist / dopplerV); // Multiplication factor of irradiance due to spotlight effect. 
+                o.irrad = 1 / (pow(dopplerV, 5) * vvRelPDist / dopplerV); // Multiplication factor of irradiance due to spotlight effect. 
 
                 return o;
             }

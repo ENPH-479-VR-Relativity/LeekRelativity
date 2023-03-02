@@ -9,7 +9,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.InputSystem;
 
-public class SpatialProperties : MonoBehaviour
+public class GlobalProperties : MonoBehaviour
 {
     public InputActionProperty positionProperty;
     public InputActionProperty rotationProperty;
@@ -17,6 +17,8 @@ public class SpatialProperties : MonoBehaviour
     public InputActionProperty angularVelocityProperty;
     public InputActionProperty accelerationProperty;
     public InputActionProperty angularAccelerationProperty;
+
+    public float LightSpeed;
 
     public Vector3 Position { get; private set; } = Vector3.zero;
     public Quaternion Rotation { get; private set; } = new Quaternion(0, 0, 0, 1);
