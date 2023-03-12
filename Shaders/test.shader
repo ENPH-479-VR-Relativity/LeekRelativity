@@ -30,7 +30,7 @@ Shader "LeekRelativity/test"
             {
                 float4 vertex : POSITION;
                 float2 uv : TEXCOORD0;
-                float4 col : COLOR;
+                fixed4 color : COLOR0;
             };
 
             struct v2f
@@ -38,6 +38,7 @@ Shader "LeekRelativity/test"
                 float2 uv : TEXCOORD0;
                 UNITY_FOG_COORDS(1)
                 float4 vertex : SV_POSITION;
+                fixed4 color : COLOR0;
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -50,7 +51,7 @@ Shader "LeekRelativity/test"
             float4 _VPerp;
             float4 _rel;
 
-            v2f vert(appdata_base v)
+            v2f vert(appdata_full v)
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v); 
@@ -104,15 +105,15 @@ Shader "LeekRelativity/test"
         
                 o.uv = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
 
+                o.color = v.color;
+
                 return o;
             }
 
             fixed4 frag(v2f i) : SV_Target
             {
-                // return tex2D(_MainTex, i.uv);
-                float mag = sqrt(_vPlayer.x * _vPlayer.x + _vPlayer.y * _vPlayer.y + _vPlayer.z * _vPlayer.z);
-                mag = min(mag, 0.01);
-                return fixed4(_Beta, _Beta, _Beta, 1.0);
+                return tex2D(_MainTex, i.uv)*i.color;
+                //return i.color;
                 //return fixed4(0.0, 0.0, 0.0, 1.0);
             }
             ENDCG
