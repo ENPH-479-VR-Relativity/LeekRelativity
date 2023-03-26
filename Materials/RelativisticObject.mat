@@ -8,7 +8,7 @@ Material:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_Name: RelativisticObject
-  m_Shader: {fileID: 4800000, guid: 481f71be2a9b83b4181549d1ed1988a8, type: 3}
+  m_Shader: {fileID: 4800000, guid: d2c980a97a5de034db70016ffd4368f7, type: 3}
   m_ValidKeywords: []
   m_InvalidKeywords: []
   m_LightmapFlags: 4
@@ -34,7 +34,9 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
+    - _Amount: 0.5
     - _Cutoff: 0.1
+    - _VLight: 1
     m_Colors:
     - _vInWorld: {r: 0, g: 0, b: 0, a: 0}
   m_BuildTextureStacks: []
