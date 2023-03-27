@@ -89,6 +89,9 @@ Shader "LeekRelativity/test"
 					float vvRelPSpeed = sqrt(vvRelP.x * vvRelP.x + vvRelP.y * vvRelP.y + vvRelP.z * vvRelP.z); // Speed of the vertex relative to the player.
 					float vvRelPDist = sqrt(xvRelP.x * xvRelP.x + xvRelP.y * xvRelP.y + xvRelP.z * xvRelP.z); // Distance of the vertex relative to the player.
 
+					float xvDotVvRelP = vvRelP.x * xvRelP.x + vvRelP.y * xvRelP.y + vvRelP.z * xvRelP.z; // Dot product of vertex velocity and position, both rel. to player.
+					float cosAngXvVvRelP = xvDotVvRelP / (vvRelPSpeed * vvRelPDist); // Cosine of the angle between the relative velocity of the vertex and the relative position of the vertex (both rel. to player).
+
 					// float beta = (xvDotVvRelP > 0 ? 1 : -1) * vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
 					float beta = vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
 					float gamma = 1 / sqrt(1 - min(beta * beta, 0.99999)); // Lorentz factor
