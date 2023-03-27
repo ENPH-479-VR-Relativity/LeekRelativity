@@ -57,9 +57,9 @@ Shader "LeekRelativity/test"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); 
 
                 o.uv = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
-				o.xv = UnityObjectToClipPos(v.vertex);
 
-				if (_dopplerEnabled) {
+				if (_dopplerEnabled || _spotlightEnabled) {
+					o.xv = UnityObjectToClipPos(v.vertex);
 					float4 vertexPos = mul(unity_ObjectToWorld, v.vertex);
 
 					float4 xvRelO = vertexPos; // Position of vertex relative to object.
@@ -94,27 +94,30 @@ Shader "LeekRelativity/test"
 
 					// float beta = (xvDotVvRelP > 0 ? 1 : -1) * vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
 					float beta = vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
-					float gamma = 1 / sqrt(1 - min(beta * beta, 0.99999)); // Lorentz factor
-
-					o.doppler = 1 / (gamma * (1 + beta * cosAngXvVvRelP)); // Doppler factor, player frame of reference.
-					float dopplerV = gamma * (1 - beta * cosAngXvVvRelP); // Doppler factor, vertex frame of reference.
-
-					if (abs(o.doppler) < 0.00001) {
-						o.doppler = 0.00001 * (o.doppler > 0 ? 1 : -1);
+					
+					if (beta * beta > 1) { // Render white above speed of light
+						o.doppler = 1;
+						o.lum = 1e6;
 					}
+					else {
+						float gamma = 1 / sqrt(1 - min(beta * beta, 0.99999)); // Lorentz factor
 
-					if(abs(dopplerV) < 0.00001) {
-						dopplerV = 0.00001 * (dopplerV > 0 ? 1 : -1);
+						float dopplerV = gamma * (1 + beta * cosAngXvVvRelP); // Doppler factor, vertex frame of reference.
+
+						if (abs(dopplerV) < 0.00001) {
+							dopplerV = 0.00001 * (dopplerV > 0 ? 1 : -1);
+						}
+						// o.doppler = vvRelPSpeed / 2;
+						// o.doppler = vvRelPSpeed / 2;
+
+						o.doppler = dopplerV;
+						o.lum = pow(dopplerV, 5); // Multiplication factor of luminance due to spotlight effect. 
 					}
-					// o.doppler = vvRelPSpeed / 2;
-					// o.doppler = vvRelPSpeed / 2;
-
-					o.lum = pow(dopplerV, 5); // Multiplication factor of luminance due to spotlight effect. 
 				}
                 
 
                 // spatial transform
-				if (_spatialDistEnabled) {
+				// if (_spatialDistEnabled) {
 					// transform based on speed (ignoring any object moving for now)
 					float4 relativeV = _vPlayer;
 					_rel = relativeV;
@@ -148,7 +151,7 @@ Shader "LeekRelativity/test"
 					float4 vertexPosObject = mul(unity_WorldToObject, vertexPos);
 
 					o.xv = UnityObjectToClipPos(vertexPosObject);
-				}
+				// }
 
 				o.color = v.color;
 
@@ -306,17 +309,16 @@ Shader "LeekRelativity/test"
 			//Per pixel shader, does color modifications
 			float4 frag(v2f i) : SV_Target
 			{
-				if (_dopplerEnabled) {
+				if (_dopplerEnabled || _spotlightEnabled) {
 					// //Used to maintian a square scale ( adjust for screen aspect ratio )
-				// float x1 = i.pos2.x * 2 * xs;
-				// float y1 = i.pos2.y * 2 * xs / xyr;
-				// float z1 = i.pos2.z;
+					// float x1 = i.pos2.x * 2 * xs;
+					// float y1 = i.pos2.y * 2 * xs / xyr;
+					// float z1 = i.pos2.z;
 
 					float shift = i.doppler;
-					// if (_colorShift == 0)
-					// {
-					// 	   shift = 1.0f;
-					// }
+					if (!_dopplerEnabled) {
+						shift = 1;
+					}
 
 					//Get initial color 
 					float4 data = tex2D(_MainTex, i.uv).rgba;
@@ -327,6 +329,13 @@ Shader "LeekRelativity/test"
 					// data.a = i.draw ? data.a : 0;
 
 					float3 rgb = data.xyz;
+
+					float lumScalar = i.lum;
+
+					if (!_spotlightEnabled) {
+						lumScalar = 1;
+					}
+
 
 					//Color shift due to doppler, go from RGB -> XYZ, shift, then back to RGB.
 					float3 xyz = RGBToXYZC(float(rgb.x), float(rgb.y), float(rgb.z));
@@ -345,12 +354,19 @@ Shader "LeekRelativity/test"
 					float3 rgbColourShifted = XYZToRGBC(xf,yf,zf);
 
 					float3 rgbFinal = float3(
-						i.lum* rgbColourShifted.x,
-						i.lum* rgbColourShifted.y,
-						i.lum* rgbColourShifted.z
+						lumScalar * rgbColourShifted.x,
+						lumScalar * rgbColourShifted.y,
+						lumScalar * rgbColourShifted.z
 					);
 
-					rgbFinal = constrainRGB(rgbFinal.x, rgbFinal.y, rgbFinal.z); //might not be needed
+					rgbFinal = float3(
+						rgbFinal.x > 1 ? 1 : rgbFinal.x,
+						rgbFinal.y > 1 ? 1 : rgbFinal.y,
+						rgbFinal.z > 1 ? 1 : rgbFinal.z
+					);
+					
+
+					// rgbFinal = constrainRGB(rgbFinal.x, rgbFinal.y, rgbFinal.z); //might not be needed
 
 					// return float4((float)abs(i.lum), (float)max(i.lum, 0), (float)max(-1 * i.lum, 0), data.a);
 					// return float4((float)i.lum, (float)i.lum, (float)i.lum, data.a);
