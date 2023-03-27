@@ -11,6 +11,12 @@ using UnityEngine.InputSystem;
 
 public class GlobalProperties : MonoBehaviour
 {
+    public bool IsSpatialDistortionEnabled = true;
+    public bool IsSpotlightEnabled = true;
+    public bool IsDopplerEnabled = true;
+
+    public float LightSpeed;
+
     public InputActionProperty positionProperty;
     public InputActionProperty rotationProperty;
     public InputActionProperty velocityProperty;
@@ -18,15 +24,13 @@ public class GlobalProperties : MonoBehaviour
     public InputActionProperty accelerationProperty;
     public InputActionProperty angularAccelerationProperty;
 
-    public float LightSpeed;
-
     public Vector3 Position { get; private set; } = Vector3.zero;
     public Quaternion Rotation { get; private set; } = new Quaternion(0, 0, 0, 1);
     public Vector3 Velocity { get; private set; } = Vector3.zero;
     public Vector3 AngularVelocity { get; private set; } = Vector3.zero;
     public Vector3 Acceleration { get; private set; } = Vector3.zero;
     public Vector3 AngularAcceleration { get; private set; } = Vector3.zero;
-
+    
     // Update is called once per frame
     void Update()
     {
