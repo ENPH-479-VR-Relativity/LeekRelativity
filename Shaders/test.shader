@@ -22,7 +22,6 @@ Shader "LeekRelativity/test"
             float4 _xp = float4(0, 0, 0, 0); // Player position
             float4 _wp = float4(0, 0, 0, 0); // Player angular velocity
             float4 _vo = float4(0, 0, 0, 0); // Object velocity
-            float4 _xo = float4(0, 0, 0, 0); // Object position
             float4 _wo = float4(0, 0, 0, 0); // Object angular velocity
             float _vLight = 5.0; // Speed of light
 
@@ -31,7 +30,7 @@ Shader "LeekRelativity/test"
                 float4 xv : SV_POSITION; // Vertex position
                 float2 uv : TEXCOORD0;
                 float doppler : TEXCOORD1; // Doppler factor, player frame of reference.
-                float irrad : TEXCOORD2; // Irradiance factor due to spotlight effect. 
+                float lum : TEXCOORD2; //Luminance factor due to spotlight effect. 
                 UNITY_VERTEX_OUTPUT_STEREO
             };
 
@@ -48,9 +47,11 @@ Shader "LeekRelativity/test"
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); 
                 o.xv = UnityObjectToClipPos(v.vertex);
                 o.uv = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
+				
+				float4 vertexPos = mul(unity_ObjectToWorld, v.vertex);
 
-                float4 xvRelO = v.vertex - _xo; // Position of vertex relative to object.
-                float4 xvRelP = v.vertex - _xp; // Position of vertex relative to player.
+                float4 xvRelO = vertexPos; // Position of vertex relative to object.
+                float4 xvRelP = vertexPos - _xp; // Position of vertex relative to player.
 
                 float4 vvAngObj = float4(
                         _wo.y * xvRelO.z - _wo.z * xvRelO.y,
@@ -79,16 +80,24 @@ Shader "LeekRelativity/test"
                 float xvDotVvRelP = vvRelP.x * xvRelP.x + vvRelP.y * xvRelP.y + vvRelP.z * xvRelP.z; // Dot product of vertex velocity and position, both rel. to player.
                 float cosAngXvVvRelP = xvDotVvRelP / (vvRelPSpeed * vvRelPDist); // Cosine of the angle between the relative velocity of the vertex and the relative position of the vertex (both rel. to player).
 
+                // float beta = (xvDotVvRelP > 0 ? 1 : -1) * vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
                 float beta = vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
                 float gamma = 1 / sqrt(1 - min(beta * beta, 0.99999)); // Lorentz factor
 
-                o.doppler = max(abs(1 / (gamma * (1 + beta * cosAngXvVvRelP))), 0.00001); // Doppler factor, player frame of reference.
+                o.doppler = 1 / (gamma * (1 + beta * cosAngXvVvRelP)); // Doppler factor, player frame of reference.
                 float dopplerV = gamma * (1 - beta * cosAngXvVvRelP); // Doppler factor, vertex frame of reference.
-                
+
+				if (abs(o.doppler) < 0.00001) {
+					o.doppler = 0.00001 * (o.doppler > 0 ? 1 : -1);
+				}
+
+				if(abs(dopplerV) < 0.00001) {
+					dopplerV = 0.00001 * (dopplerV > 0 ? 1 : -1);
+				}
                 // o.doppler = vvRelPSpeed / 2;
                 // o.doppler = vvRelPSpeed / 2;
 
-                o.irrad = 1 / (pow(dopplerV, 5) * vvRelPDist / dopplerV); // Multiplication factor of irradiance due to spotlight effect. 
+                o.lum = pow(dopplerV, 5); // Multiplication factor of luminance due to spotlight effect. 
 
                 return o;
             }
@@ -126,7 +135,7 @@ Shader "LeekRelativity/test"
 
 //----------------------------------------------------------------------------------------------------
 // 
-// 			              MIT Game Lab code for colour stuff - to be replaced
+// 			              MIT Game Lab code for colour stuff
 //
 //----------------------------------------------------------------------------------------------------
 
@@ -279,8 +288,19 @@ Shader "LeekRelativity/test"
 				float yf = pow((1 / shift),3) * (getYFromCurve(rParam, shift) + getYFromCurve(gParam,shift) + getYFromCurve(bParam,shift) + getYFromCurve(IRParam,shift) + getYFromCurve(UVParam,shift));
 				float zf = pow((1 / shift),3) * (getZFromCurve(rParam, shift) + getZFromCurve(gParam,shift) + getZFromCurve(bParam,shift) + getZFromCurve(IRParam,shift) + getZFromCurve(UVParam,shift));
 
-				float3 rgbFinal = XYZToRGBC(xf,yf,zf);
-				rgbFinal = constrainRGB(rgbFinal.x,rgbFinal.y, rgbFinal.z); //might not be needed
+				float3 rgbColourShifted = XYZToRGBC(xf,yf,zf);
+
+				float3 rgbFinal = float3(
+					i.lum* rgbColourShifted.x,
+					i.lum* rgbColourShifted.y,
+					i.lum* rgbColourShifted.z
+				);
+				
+
+				rgbFinal = constrainRGB(rgbFinal.x, rgbFinal.y, rgbFinal.z); //might not be needed
+
+				// return float4((float)abs(i.lum), (float)max(i.lum, 0), (float)max(-1 * i.lum, 0), data.a);
+				// return float4((float)i.lum, (float)i.lum, (float)i.lum, data.a);
 
 				//Test if unity_Scale is correct, unity occasionally does not give us the correct scale and you will see strange things in vertices,  this is just easy way to test
 				//float4x4 temp  = mul(unity_Scale.w*_Object2World, _World2Object);
