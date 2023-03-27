@@ -95,24 +95,18 @@ Shader "LeekRelativity/test"
 					// float beta = (xvDotVvRelP > 0 ? 1 : -1) * vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
 					float beta = vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
 					
-					if (beta * beta > 1) { // Render white above speed of light
-						o.doppler = 1;
-						o.lum = 1e6;
+					float gamma = 1 / sqrt(1 - min(beta * beta, 0.99999)); // Lorentz factor
+
+					float dopplerV = gamma * (1 + beta * cosAngXvVvRelP); // Doppler factor, vertex frame of reference.
+
+					if (abs(dopplerV) < 0.00001) {
+						dopplerV = 0.00001 * (dopplerV > 0 ? 1 : -1);
 					}
-					else {
-						float gamma = 1 / sqrt(1 - min(beta * beta, 0.99999)); // Lorentz factor
+					// o.doppler = vvRelPSpeed / 2;
+					// o.doppler = vvRelPSpeed / 2;
 
-						float dopplerV = gamma * (1 + beta * cosAngXvVvRelP); // Doppler factor, vertex frame of reference.
-
-						if (abs(dopplerV) < 0.00001) {
-							dopplerV = 0.00001 * (dopplerV > 0 ? 1 : -1);
-						}
-						// o.doppler = vvRelPSpeed / 2;
-						// o.doppler = vvRelPSpeed / 2;
-
-						o.doppler = dopplerV;
-						o.lum = pow(dopplerV, 5); // Multiplication factor of luminance due to spotlight effect. 
-					}
+					o.doppler = dopplerV;
+					o.lum = pow(dopplerV, 5); // Multiplication factor of luminance due to spotlight effect. 
 				}
                 
 
