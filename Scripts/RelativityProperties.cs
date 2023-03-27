@@ -31,11 +31,28 @@ public class RelativityProperties : MonoBehaviour
 
         Shader.SetGlobalVector("_xp", new Vector4(xp.x, xp.y, xp.z, 0f));
         Shader.SetGlobalVector("_vp", new Vector4(vp.x, vp.y, vp.z, 0f));
+
+        // same things different name to account for different naming in shaders between doppler and spatial distortion
+        Shader.SetGlobalVector("_playerPos", new Vector4(xp.x, xp.y, xp.z, 0f));
+        Shader.SetGlobalVector("_vPlayer", new Vector4(vp.x, vp.y, vp.z, 0f));
+
+
         Shader.SetGlobalVector("_wp", new Vector4(wp.x, wp.y, wp.z, 0f));
 
+        // Likely a source of bugs. Use vertex position in shaders instead.
         Shader.SetGlobalVector("_xo", objectPos.position);
 
         print("Position: " + xp);
         print("Velocity: " + vp + "; magnitude: " + vp.magnitude);
+
+        // Update which effects are enabled
+
+        // convert to integers because shaders do not support bools
+        int intSpatialDistortionEnabled = globalProperties.IsSpatialDistortionEnabled ? 1 : 0;
+        int intDopplerEnabled = globalProperties.IsDopplerEnabled ? 1 : 0;
+        int intSpotlightEnabled = globalProperties.IsSpotlightEnabled ? 1 : 0;
+        Shader.SetGlobalInteger("_spatialDistEnabled", intSpatialDistortionEnabled);
+        Shader.SetGlobalInteger("_spotlightEnabled", intSpotlightEnabled);
+        Shader.SetGlobalInteger("_dopplerEnabled", intDopplerEnabled);
     }
 }
