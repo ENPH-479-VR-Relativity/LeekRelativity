@@ -16,7 +16,7 @@ public class GlobalProperties : MonoBehaviour
     public bool IsDopplerEnabled = true;
 
     public float LightSpeed;
-    public float SpaceScalar;
+    public float SpaceScalar = 1.0f;
 
     public InputActionProperty positionProperty;
     public InputActionProperty rotationProperty;
