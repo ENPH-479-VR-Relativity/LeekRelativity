@@ -55,12 +55,11 @@ Shader "LeekRelativity/test"
             {
                 v2f o;
                 UNITY_SETUP_INSTANCE_ID(v); 
-                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o); 
+                UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-                o.uv = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
+				o.xv = UnityObjectToClipPos(v.vertex);
 
 				if (_dopplerEnabled || _spotlightEnabled) {
-					o.xv = UnityObjectToClipPos(v.vertex);
 					float4 vertexPos = mul(unity_ObjectToWorld, v.vertex);
 
 					float4 xvRelO = vertexPos; // Position of vertex relative to object.
@@ -112,7 +111,7 @@ Shader "LeekRelativity/test"
                 
 
                 // spatial transform
-				// if (_spatialDistEnabled) {
+				if (_spatialDistEnabled) {
 					// transform based on speed (ignoring any object moving for now)
 					float4 relativeV = _vPlayer;
 					_rel = relativeV;
@@ -144,9 +143,10 @@ Shader "LeekRelativity/test"
 					vertexPos.z = vertexPos.z - relativePos.z * (1 - gamma_);
 
 					float4 vertexPosObject = mul(unity_WorldToObject, vertexPos);
-
 					o.xv = UnityObjectToClipPos(vertexPosObject);
-				// }
+
+				}
+				o.uv = TRANSFORM_TEX(v.texcoord.xy, _MainTex);
 
 				o.color = v.color;
 
