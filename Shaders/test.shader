@@ -24,6 +24,7 @@ Shader "LeekRelativity/test"
             float4 _vo = float4(0, 0, 0, 0); // Object velocity
             float4 _wo = float4(0, 0, 0, 0); // Object angular velocity
             float _vLight = 5.0; // Speed of light
+			float _spaceDilationVLightScalar = 1.0; // Scalar for space dilation speed of light to enhance effects
             float4 _vPlayer = float4(0, 0, 0, 0);
             float4 _playerPos = float4(0, 0, 0, 0);
 			int _spatialDistEnabled = 0;
@@ -129,7 +130,7 @@ Shader "LeekRelativity/test"
 					float4 VPerpendicular = relativeV - VParallel;
 
 					float VParallelSquared = VParallel.x * VParallel.x + VParallel.y * VParallel.y + VParallel.z * VParallel.z;
-					float VLightSquared = _vLight * _vLight;
+					float VLightSquared = _vLight * _vLight * _spaceDilationVLightScalar * _spaceDilationVLightScalar;
 
 					_VParallel = VParallel;
 					_VPerp = VPerpendicular;

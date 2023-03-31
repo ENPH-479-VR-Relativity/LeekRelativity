@@ -18,6 +18,7 @@ public class RelativityProperties : MonoBehaviour
     void Start()
     {
         Shader.SetGlobalFloat("_vLight", globalProperties.LightSpeed);
+        Shader.SetGlobalFloat("_spaceDilationVLightScalar", globalProperties.SpaceScalar);
         objectPos = GetComponent<Transform>();
         globalProperties = FindObjectOfType<GlobalProperties>();
     }
