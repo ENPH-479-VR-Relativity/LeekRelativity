@@ -30,6 +30,7 @@ Shader "LeekRelativity/test"
 			int _spatialDistEnabled = 0;
 			int _spotlightEnabled = 0;
 			int _dopplerEnabled = 0;
+			float _maxBetaFactor = 0.99999;
 
             struct v2f
             {
@@ -47,9 +48,6 @@ Shader "LeekRelativity/test"
 			sampler2D _CameraDepthTexture;
             float4 _MainTex_ST;
             float _Beta;
-            float4 _VParallel;
-            float4 _VPerp;
-            float4 _rel;
 
             v2f vert(appdata_full v)
             {
@@ -95,7 +93,7 @@ Shader "LeekRelativity/test"
 					// float beta = (xvDotVvRelP > 0 ? 1 : -1) * vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
 					float beta = vvRelPSpeed / _vLight; // Beta as in Lorentz factor formula
 					
-					float gamma = 1 / sqrt(1 - min(beta * beta, 0.99999)); // Lorentz factor
+					float gamma = 1 / sqrt(1 - min(beta * beta, _maxBetaFactor)); // Lorentz factor
 
 					float dopplerV = gamma * (1 + beta * cosAngXvVvRelP); // Doppler factor, vertex frame of reference.
 
@@ -114,7 +112,6 @@ Shader "LeekRelativity/test"
 				if (_spatialDistEnabled) {
 					// transform based on speed (ignoring any object moving for now)
 					float4 relativeV = _vPlayer;
-					_rel = relativeV;
 					float speed = sqrt(pow((relativeV.x), 2) + pow((relativeV.y), 2) + pow((relativeV.z), 2));
 					float4 velUnitVec = relativeV / speed;
 
@@ -128,14 +125,11 @@ Shader "LeekRelativity/test"
 					float4 VParallel = (relativeV.x * relPosUnitVec.x + relativeV.y * relPosUnitVec.y + relativeV.z * relPosUnitVec.z) * relPosUnitVec;
 					float4 VPerpendicular = relativeV - VParallel;
 
-					float VParallelSquared = VParallel.x * VParallel.x + VParallel.y * VParallel.y + VParallel.z * VParallel.z;
-					float VLightSquared = _vLight * _vLight * _spaceDilationVLightScalar * _spaceDilationVLightScalar;
+					float VParallelSquared = (VParallel.x * VParallel.x + VParallel.y * VParallel.y + VParallel.z * VParallel.z) * _spaceDilationVLightScalar * _spaceDilationVLightScalar;
+					float VLightSquared = _vLight * _vLight;
 
-					_VParallel = VParallel;
-					_VPerp = VPerpendicular;
-
-					// hard cap it to 95% of speed of light
-					VParallelSquared = min(VParallelSquared, VLightSquared * 0.95);
+					// hard cap it to 99% of speed of light
+					VParallelSquared = min(VParallelSquared, VLightSquared * 0.99);
 					float gamma_ = sqrt(1 - VParallelSquared / VLightSquared);
 
 					vertexPos.x = vertexPos.x - relativePos.x * (1 - gamma_);
