@@ -17,6 +17,7 @@ public class GlobalProperties : MonoBehaviour
 
     public float LightSpeed;
     public float SpaceScalar = 1.0f;
+    public float TimeScalar = 1.0f;
 
     public InputActionProperty positionProperty;
     public InputActionProperty rotationProperty;

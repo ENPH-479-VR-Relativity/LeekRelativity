@@ -8,8 +8,8 @@ using UnityEngine;
 
 public class RelativityProperties : MonoBehaviour
 {
-    public GlobalProperties globalProperties;
-    public Transform objectPos;
+    private GlobalProperties globalProperties;
+    // public Transform objectPos;
 
     public Vector3 xp { get; set; } = Vector3.zero;
     public Vector3 vp { get; set; } = Vector3.zero;
@@ -17,15 +17,19 @@ public class RelativityProperties : MonoBehaviour
 
     void Start()
     {
+        globalProperties = FindObjectOfType<GlobalProperties>();
+
         Shader.SetGlobalFloat("_vLight", globalProperties.LightSpeed);
         Shader.SetGlobalFloat("_spaceDilationVLightScalar", globalProperties.SpaceScalar);
-        objectPos = GetComponent<Transform>();
-        globalProperties = FindObjectOfType<GlobalProperties>();
+        
+        print(globalProperties);
+        // objectPos = GetComponent<Transform>();
     }
 
     // Update is called once per frame
     void Update()
     {
+        if (globalProperties == null) return;
         xp = globalProperties.Position;
         vp = globalProperties.Velocity;
         wp = globalProperties.AngularVelocity;
@@ -40,8 +44,8 @@ public class RelativityProperties : MonoBehaviour
 
         Shader.SetGlobalVector("_wp", new Vector4(wp.x, wp.y, wp.z, 0f));
 
-        // Likely a source of bugs. Use vertex position in shaders instead.
-        Shader.SetGlobalVector("_xo", objectPos.position);
+        // // Likely a source of bugs. Use vertex position in shaders instead.
+        // Shader.SetGlobalVector("_xo", objectPos.position);
 
         print("Position: " + xp);
         print("Velocity: " + vp + "; magnitude: " + vp.magnitude);
@@ -52,8 +56,8 @@ public class RelativityProperties : MonoBehaviour
         int intSpatialDistortionEnabled = globalProperties.IsSpatialDistortionEnabled ? 1 : 0;
         int intDopplerEnabled = globalProperties.IsDopplerEnabled ? 1 : 0;
         int intSpotlightEnabled = globalProperties.IsSpotlightEnabled ? 1 : 0;
-        Shader.SetGlobalInteger("_spatialDistEnabled", intSpatialDistortionEnabled);
-        Shader.SetGlobalInteger("_spotlightEnabled", intSpotlightEnabled);
-        Shader.SetGlobalInteger("_dopplerEnabled", intDopplerEnabled);
+        Shader.SetGlobalInt("_spatialDistEnabled", intSpatialDistortionEnabled);
+        Shader.SetGlobalInt("_spotlightEnabled", intSpotlightEnabled);
+        Shader.SetGlobalInt("_dopplerEnabled", intDopplerEnabled);
     }
 }
