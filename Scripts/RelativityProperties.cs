@@ -56,8 +56,8 @@ public class RelativityProperties : MonoBehaviour
         int intSpatialDistortionEnabled = globalProperties.IsSpatialDistortionEnabled ? 1 : 0;
         int intDopplerEnabled = globalProperties.IsDopplerEnabled ? 1 : 0;
         int intSpotlightEnabled = globalProperties.IsSpotlightEnabled ? 1 : 0;
-        Shader.SetGlobalInt("_spatialDistEnabled", intSpatialDistortionEnabled);
-        Shader.SetGlobalInt("_spotlightEnabled", intSpotlightEnabled);
-        Shader.SetGlobalInt("_dopplerEnabled", intDopplerEnabled);
+        Shader.SetGlobalInteger("_spatialDistEnabled", intSpatialDistortionEnabled);
+        Shader.SetGlobalInteger("_spotlightEnabled", intSpotlightEnabled);
+        Shader.SetGlobalInteger("_dopplerEnabled", intDopplerEnabled);
     }
 }
