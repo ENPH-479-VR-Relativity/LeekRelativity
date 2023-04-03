@@ -342,7 +342,7 @@ Shader "LeekRelativity/test"
 
 					float3 rgbColourShifted = XYZToRGBC(xf, yf, zf);
 					if (!_dopplerEnabled) {
-						float3 rgbColourShifted = float3(rgb.x / 255.0f, rgb.y / 255.0f, rgb.z / 255.0f);
+						float3 rgbColourShifted = rgb;
 					}
 
 					float lumScalar = i.lum;
