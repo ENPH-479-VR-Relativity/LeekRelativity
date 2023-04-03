@@ -27,6 +27,7 @@ Shader "LeekRelativity/test"
             float4 _wo = float4(0, 0, 0, 0); // Object angular velocity
             float _vLight = 5.0; // Speed of light
 			float _spaceDilationVLightScalar = 1.0; // Scalar for space dilation speed of light to enhance effects
+			float _spotlightScalar = 1.0;
             float4 _vPlayer = float4(0, 0, 0, 0);
             float4 _playerPos = float4(0, 0, 0, 0);
 			int _spatialDistEnabled = 0;
@@ -110,7 +111,9 @@ Shader "LeekRelativity/test"
 					// o.doppler = vvRelPSpeed / 2;
 
 					o.doppler = dopplerV;
-					o.lum = pow(min(beta, 1.0f), 2) * cosAngXvVvRelP; // Multiplication factor of luminance due to spotlight effect. 
+					
+					float lumRaw = -1 * max(min(pow(beta, 2) * cosAngXvVvRelP, 1.0f), -1.0f);
+					o.lum = sign(lumRaw) * pow(abs(lumRaw), 1.0f / _spotlightScalar); // Multiplication factor of luminance due to spotlight effect. 
 
 					// o.lum = cosAngXvVvRelP;
 				}
