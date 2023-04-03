@@ -314,9 +314,6 @@ Shader "LeekRelativity/test"
 					// float z1 = i.pos2.z;
 
 					float shift = i.doppler;
-					if (!_dopplerEnabled) {
-						shift = 1;
-					}
 
 					//Get initial color 
 					float4 data = tex2D(_MainTex, i.uv).rgba;
@@ -327,12 +324,6 @@ Shader "LeekRelativity/test"
 					// data.a = i.draw ? data.a : 0;
 
 					float3 rgb = data.xyz;
-
-					float lumScalar = i.lum;
-
-					if (!_spotlightEnabled) {
-						lumScalar = 1;
-					}
 
 
 					//Color shift due to doppler, go from RGB -> XYZ, shift, then back to RGB.
@@ -349,7 +340,16 @@ Shader "LeekRelativity/test"
 					float yf = pow((1 / shift), 3) * (getYFromCurve(rParam, shift) + getYFromCurve(gParam, shift) + getYFromCurve(bParam, shift) + getYFromCurve(IRParam, shift) + getYFromCurve(UVParam, shift));
 					float zf = pow((1 / shift), 3) * (getZFromCurve(rParam, shift) + getZFromCurve(gParam, shift) + getZFromCurve(bParam, shift) + getZFromCurve(IRParam, shift) + getZFromCurve(UVParam, shift));
 
-					float3 rgbColourShifted = XYZToRGBC(xf,yf,zf);
+					float3 rgbColourShifted = XYZToRGBC(xf, yf, zf);
+					if (!_dopplerEnabled) {
+						float3 rgbColourShifted = rgb;
+					}
+
+					float lumScalar = i.lum;
+
+					if (!_spotlightEnabled) {
+						lumScalar = 1;
+					}
 
 					float3 rgbFinal = float3(
 						rgbColourShifted.x + (1 - rgbColourShifted.x) * lumScalar,
