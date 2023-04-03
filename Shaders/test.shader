@@ -348,7 +348,7 @@ Shader "LeekRelativity/test"
 					float lumScalar = i.lum;
 
 					if (!_spotlightEnabled) {
-						lumScalar = 1;
+						lumScalar = 0;
 					}
 
 					float3 rgbFinal = float3(
