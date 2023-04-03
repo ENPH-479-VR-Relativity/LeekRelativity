@@ -15,6 +15,11 @@ public class RelativityProperties : MonoBehaviour
     public Vector3 vp { get; set; } = Vector3.zero;
     public Vector3 wp { get; set; } = Vector3.zero;
 
+    public bool ToggleOverride = false;
+    public bool SpatialEnabled = false;
+    public bool SpotlightEnabled = false;
+    public bool DopplerEnabled = false;
+
     void Start()
     {
         globalProperties = FindObjectOfType<GlobalProperties>();
@@ -24,6 +29,17 @@ public class RelativityProperties : MonoBehaviour
         Shader.SetGlobalFloat("_spotlightScalar", globalProperties.SpotlightScalar);
         print(globalProperties);
         // objectPos = GetComponent<Transform>();
+
+        if (!ToggleOverride)
+        {
+            SpatialEnabled = globalProperties.IsSpatialDistortionEnabled;
+            DopplerEnabled = globalProperties.IsDopplerEnabled;
+            SpotlightEnabled = globalProperties.IsSpotlightEnabled;
+        }
+
+        Shader.SetGlobalInteger("_spatialDistEnabled", SpatialEnabled ? 1 : 0);
+        Shader.SetGlobalInteger("_spotlightEnabled", SpotlightEnabled ? 1 : 0);
+        Shader.SetGlobalInteger("_dopplerEnabled", DopplerEnabled ? 1 : 0);
     }
 
     // Update is called once per frame
@@ -53,11 +69,15 @@ public class RelativityProperties : MonoBehaviour
         // Update which effects are enabled
 
         // convert to integers because shaders do not support bools
-        int intSpatialDistortionEnabled = globalProperties.IsSpatialDistortionEnabled ? 1 : 0;
-        int intDopplerEnabled = globalProperties.IsDopplerEnabled ? 1 : 0;
-        int intSpotlightEnabled = globalProperties.IsSpotlightEnabled ? 1 : 0;
-        Shader.SetGlobalInteger("_spatialDistEnabled", intSpatialDistortionEnabled);
-        Shader.SetGlobalInteger("_spotlightEnabled", intSpotlightEnabled);
-        Shader.SetGlobalInteger("_dopplerEnabled", intDopplerEnabled);
+        if (!ToggleOverride)
+        {
+            SpatialEnabled = globalProperties.IsSpatialDistortionEnabled;
+            DopplerEnabled = globalProperties.IsDopplerEnabled;
+            SpotlightEnabled = globalProperties.IsSpotlightEnabled;
+
+            Shader.SetGlobalInteger("_spatialDistEnabled", globalProperties.IsSpatialDistortionEnabled ? 1 : 0);
+            Shader.SetGlobalInteger("_spotlightEnabled", globalProperties.IsDopplerEnabled ? 1 : 0);
+            Shader.SetGlobalInteger("_dopplerEnabled", globalProperties.IsSpotlightEnabled ? 1 : 0);
+        }
     }
 }

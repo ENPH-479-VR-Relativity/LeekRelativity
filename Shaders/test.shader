@@ -60,13 +60,11 @@ Shader "LeekRelativity/test"
 
 				o.xv = UnityObjectToClipPos(v.vertex); 
 
-				float4 xp = _xp;
-
 				if (_dopplerEnabled || _spotlightEnabled) {
 					float4 vertexPos = mul(unity_ObjectToWorld, v.vertex);
 
 					float4 xvRelO = vertexPos; // Position of vertex relative to object.
-					float4 xvRelP = vertexPos - xp; // Position of vertex relative to player.
+					float4 xvRelP = vertexPos - _xp; // Position of vertex relative to player.
 
 					float4 vvAngObj = float4(
 						_wo.y * xvRelO.z - _wo.z * xvRelO.y,
@@ -129,7 +127,7 @@ Shader "LeekRelativity/test"
 					//float4 vertexPos = v.vertex;
 					float4 vertexPos = mul(unity_ObjectToWorld, v.vertex);
 
-					float4 relativePos = vertexPos - xp;
+					float4 relativePos = vertexPos - _xp;
 					float dist = sqrt(pow((relativePos.x), 2) + pow((relativePos.y), 2) + pow((relativePos.z), 2));
 					float4 relPosUnitVec = relativePos / dist;
 
@@ -383,7 +381,7 @@ Shader "LeekRelativity/test"
 					//return temp2;	
 					//float4 temp2 =float4( (float)rgbFinal.x,(float)rgbFinal.y,(float)rgbFinal.z,data.a );
 
-					// float4 xp = mul(unity_ObjectToWorld, _xp);
+					// float4 _xp = mul(unity_ObjectToWorld, _xp);
 					// return float4((float)i.xv.x - _xp.x, (float)i.xv.y - _xp.y, (float)i.xv.z - _xp.z, data.a);
 
 					return float4((float)rgbFinal.x, (float)rgbFinal.y, (float)rgbFinal.z, data.a); //use me for any real build
