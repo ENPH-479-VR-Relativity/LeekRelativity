@@ -47,8 +47,8 @@ public class RelativityProperties : MonoBehaviour
         // // Likely a source of bugs. Use vertex position in shaders instead.
         // Shader.SetGlobalVector("_xo", objectPos.position);
 
-        print("Position: " + xp);
-        print("Velocity: " + vp + "; magnitude: " + vp.magnitude);
+        // print("Position: " + xp);
+        // print("Velocity: " + vp + "; magnitude: " + vp.magnitude);
 
         // Update which effects are enabled
 

@@ -19,6 +19,14 @@ public class TimeDilation : MonoBehaviour
 
     // Update is called once per frame
     void Update()
+    {   
+        if (globalProperties.IsTimeDilationEnabled)
+        {
+            TimeDilationUpdate();
+        }
+    }
+
+    void TimeDilationUpdate()
     {
         Vector3 xo = objectPos.position; // Position of object.
         Vector3 vo = new Vector3(0f, 0f, 0f); // Velocity of object.
@@ -45,7 +53,7 @@ public class TimeDilation : MonoBehaviour
         float cosAngXoVoRelP = xoDotVoRelP / (voRelPSpeed * voRelPDist); // Cosine of the angle between the relative velocity of the object and the relative position of the object (both rel. to player).
 
         float beta = voRelPSpeed * globalProperties.TimeScalar / globalProperties.LightSpeed; // Beta as in Lorentz factor formula
-        
+
         gamma = 1 / Mathf.Sqrt(1 - Mathf.Min(beta * beta, 0.99999f)); // Lorentz factor
 
         LocalTime += gamma * Time.deltaTime;

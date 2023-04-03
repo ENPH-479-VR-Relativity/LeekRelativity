@@ -14,6 +14,7 @@ public class GlobalProperties : MonoBehaviour
     public bool IsSpatialDistortionEnabled = true;
     public bool IsSpotlightEnabled = true;
     public bool IsDopplerEnabled = true;
+    public bool IsTimeDilationEnabled = true;
 
     public float LightSpeed;
     public float SpaceScalar = 1.0f;
