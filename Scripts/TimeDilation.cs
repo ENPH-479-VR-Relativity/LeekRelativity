@@ -32,13 +32,14 @@ public class TimeDilation : MonoBehaviour
         Vector3 vo = new Vector3(0f, 0f, 0f); // Velocity of object.
         Vector3 xoRelP = xo - globalProperties.Position; // Position of object relative to player.
 
-        Vector3 voAngPlr = new Vector3(
-                globalProperties.AngularVelocity.y * xoRelP.z - globalProperties.AngularVelocity.z * xoRelP.y,
-                globalProperties.AngularVelocity.z * xoRelP.x - globalProperties.AngularVelocity.x * xoRelP.z,
-                globalProperties.AngularVelocity.x * xoRelP.y - globalProperties.AngularVelocity.y * xoRelP.x
-            ); // Angular component of linear object velocity due to rotation of player (in view of player).
+        // Vector3 voAngPlr = new Vector3(
+        //         globalProperties.AngularVelocity.y * xoRelP.z - globalProperties.AngularVelocity.z * xoRelP.y,
+        //         globalProperties.AngularVelocity.z * xoRelP.x - globalProperties.AngularVelocity.x * xoRelP.z,
+        //         globalProperties.AngularVelocity.x * xoRelP.y - globalProperties.AngularVelocity.y * xoRelP.x
+        //     ); // Angular component of linear object velocity due to rotation of player (in view of player).
 
-        Vector3 voRelP = vo + voAngPlr - globalProperties.Velocity; // Velocity of object relative to player (adds effect of player's ang. velocity). 
+        // Vector3 voRelP = vo + voAngPlr - globalProperties.Velocity; // Velocity of object relative to player (adds effect of player's ang. velocity). 
+        Vector3 voRelP = vo - globalProperties.Velocity; // Velocity of object relative to player (adds effect of player's ang. velocity). 
 
         float playerSpeed = Mathf.Sqrt(
             globalProperties.Velocity.x * globalProperties.Velocity.x +
