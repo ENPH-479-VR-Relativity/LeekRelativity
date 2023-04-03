@@ -1,3 +1,5 @@
+// Upgrade NOTE: replaced 'mul(UNITY_MATRIX_MVP,*)' with 'UnityObjectToClipPos(*)'
+
 Shader "LeekRelativity/test"
 {
     Properties
@@ -55,13 +57,15 @@ Shader "LeekRelativity/test"
                 UNITY_SETUP_INSTANCE_ID(v); 
                 UNITY_INITIALIZE_VERTEX_OUTPUT_STEREO(o);
 
-				o.xv = UnityObjectToClipPos(v.vertex);
+				o.xv = UnityObjectToClipPos(v.vertex); 
+
+				float4 xp = _xp;
 
 				if (_dopplerEnabled || _spotlightEnabled) {
 					float4 vertexPos = mul(unity_ObjectToWorld, v.vertex);
 
 					float4 xvRelO = vertexPos; // Position of vertex relative to object.
-					float4 xvRelP = vertexPos - _xp; // Position of vertex relative to player.
+					float4 xvRelP = vertexPos - xp; // Position of vertex relative to player.
 
 					float4 vvAngObj = float4(
 						_wo.y * xvRelO.z - _wo.z * xvRelO.y,
@@ -80,6 +84,8 @@ Shader "LeekRelativity/test"
 					float4 vv = vvAngObj + _vo; // Velocity of vertex in the Player's view (stuff from angular velocity + linear velocity of object).
 
 					float4 vvRelP = vv + vvAngPlr - _vp; // Velocity of vertex relative to player (adds effect of player's ang. velocity). 
+
+					// vvRelP = -1 * _vp; // Debug
 
 					float playerSpeed = sqrt(_vp.x * _vp.x + _vp.y + _vp.y + _vp.z + _vp.z); // Speed of the player.
 					float vertexSpeed = sqrt(vv.x * vv.x + vv.y + vv.y + vv.z * vv.z); // Speed of the vertex.
@@ -104,7 +110,9 @@ Shader "LeekRelativity/test"
 					// o.doppler = vvRelPSpeed / 2;
 
 					o.doppler = dopplerV;
-					o.lum = pow(dopplerV, 5); // Multiplication factor of luminance due to spotlight effect. 
+					o.lum = pow(min(beta, 1.0f), 2) * cosAngXvVvRelP; // Multiplication factor of luminance due to spotlight effect. 
+
+					// o.lum = cosAngXvVvRelP;
 				}
                 
 
@@ -118,7 +126,7 @@ Shader "LeekRelativity/test"
 					//float4 vertexPos = v.vertex;
 					float4 vertexPos = mul(unity_ObjectToWorld, v.vertex);
 
-					float4 relativePos = vertexPos - _playerPos;
+					float4 relativePos = vertexPos - xp;
 					float dist = sqrt(pow((relativePos.x), 2) + pow((relativePos.y), 2) + pow((relativePos.z), 2));
 					float4 relPosUnitVec = relativePos / dist;
 
@@ -343,15 +351,21 @@ Shader "LeekRelativity/test"
 					float3 rgbColourShifted = XYZToRGBC(xf,yf,zf);
 
 					float3 rgbFinal = float3(
-						lumScalar * rgbColourShifted.x,
-						lumScalar * rgbColourShifted.y,
-						lumScalar * rgbColourShifted.z
+						rgbColourShifted.x + (1 - rgbColourShifted.x) * lumScalar,
+						rgbColourShifted.y + (1 - rgbColourShifted.y) * lumScalar,
+						rgbColourShifted.z + (1 - rgbColourShifted.z) * lumScalar
 					);
 
 					rgbFinal = float3(
 						rgbFinal.x > 1 ? 1 : rgbFinal.x,
 						rgbFinal.y > 1 ? 1 : rgbFinal.y,
 						rgbFinal.z > 1 ? 1 : rgbFinal.z
+					);
+
+					rgbFinal = float3(
+						rgbFinal.x < 0 ? 0 : rgbFinal.x,
+						rgbFinal.y < 0 ? 0 : rgbFinal.y,
+						rgbFinal.z < 0 ? 0 : rgbFinal.z
 					);
 					
 
@@ -365,6 +379,10 @@ Shader "LeekRelativity/test"
 					//float4 temp2 = mul( temp,float4( (float)rgbFinal.x,(float)rgbFinal.y,(float)rgbFinal.z,data.a));
 					//return temp2;	
 					//float4 temp2 =float4( (float)rgbFinal.x,(float)rgbFinal.y,(float)rgbFinal.z,data.a );
+
+					// float4 xp = mul(unity_ObjectToWorld, _xp);
+					// return float4((float)i.xv.x - _xp.x, (float)i.xv.y - _xp.y, (float)i.xv.z - _xp.z, data.a);
+
 					return float4((float)rgbFinal.x, (float)rgbFinal.y, (float)rgbFinal.z, data.a); //use me for any real build
 				}
 				else {

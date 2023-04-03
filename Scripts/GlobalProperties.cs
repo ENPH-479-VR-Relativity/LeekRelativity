@@ -25,6 +25,7 @@ public class GlobalProperties : MonoBehaviour
     public InputActionProperty angularVelocityProperty;
     public InputActionProperty accelerationProperty;
     public InputActionProperty angularAccelerationProperty;
+    public Transform XRRigTransform;
 
     public Vector3 Position { get; private set; } = Vector3.zero;
     public Quaternion Rotation { get; private set; } = new Quaternion(0, 0, 0, 1);
@@ -32,11 +33,11 @@ public class GlobalProperties : MonoBehaviour
     public Vector3 AngularVelocity { get; private set; } = Vector3.zero;
     public Vector3 Acceleration { get; private set; } = Vector3.zero;
     public Vector3 AngularAcceleration { get; private set; } = Vector3.zero;
-    
+
     // Update is called once per frame
     void Update()
     {
-        Position = positionProperty.action.ReadValue<Vector3>();
+        Position = positionProperty.action.ReadValue<Vector3>() + XRRigTransform.position;
         Rotation = rotationProperty.action.ReadValue<Quaternion>();
         Velocity = velocityProperty.action.ReadValue<Vector3>();
         AngularVelocity = angularVelocityProperty.action.ReadValue<Vector3>();
