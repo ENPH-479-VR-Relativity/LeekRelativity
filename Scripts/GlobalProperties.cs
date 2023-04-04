@@ -20,6 +20,7 @@ public class GlobalProperties : MonoBehaviour
     public float SpaceScalar = 1.0f;
     public float TimeScalar = 1.0f;
     public float SpotlightScalar = 1.0f;
+    public float XRSpeedScalar = 0.1f;
 
     public InputActionProperty positionProperty;
     public InputActionProperty rotationProperty;
@@ -52,7 +53,11 @@ public class GlobalProperties : MonoBehaviour
 
         XRRigVelocity = (Position - LastLocation) / Time.deltaTime;
         Rotation = rotationProperty.action.ReadValue<Quaternion>();
-        Velocity = velocityProperty.action.ReadValue<Vector3>() + XRRigVelocity;
+        Velocity = velocityProperty.action.ReadValue<Vector3>() + XRRigVelocity * XRSpeedScalar;
+
+        print(XRRigVelocity);
+        print(velocityProperty.action.ReadValue<Vector3>());
+
         AngularVelocity = angularVelocityProperty.action.ReadValue<Vector3>();
         Acceleration = accelerationProperty.action.ReadValue<Vector3>();
         AngularAcceleration = angularAccelerationProperty.action.ReadValue<Vector3>();
