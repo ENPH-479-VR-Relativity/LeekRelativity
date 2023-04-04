@@ -387,7 +387,32 @@ Shader "LeekRelativity/test"
 					return float4((float)rgbFinal.x, (float)rgbFinal.y, (float)rgbFinal.z, data.a); //use me for any real build
 				}
 				else {
-					return tex2D(_MainTex, i.uv) * i.color;
+					// For only spatial distortion enabled
+					float4 data = tex2D(_MainTex, i.uv).rgba;
+					float3 rgb = data.xyz;
+
+					float3 rgbColourShifted = rgb;
+					float lumScalar = 0;
+
+					float3 rgbFinal = float3(
+						rgbColourShifted.x + (1 - rgbColourShifted.x) * lumScalar,
+						rgbColourShifted.y + (1 - rgbColourShifted.y) * lumScalar,
+						rgbColourShifted.z + (1 - rgbColourShifted.z) * lumScalar
+						);
+
+					rgbFinal = float3(
+						rgbFinal.x > 1 ? 1 : rgbFinal.x,
+						rgbFinal.y > 1 ? 1 : rgbFinal.y,
+						rgbFinal.z > 1 ? 1 : rgbFinal.z
+						);
+
+					rgbFinal = float3(
+						rgbFinal.x < 0 ? 0 : rgbFinal.x,
+						rgbFinal.y < 0 ? 0 : rgbFinal.y,
+						rgbFinal.z < 0 ? 0 : rgbFinal.z
+						);
+
+					return float4((float)rgbFinal.x, (float)rgbFinal.y, (float)rgbFinal.z, data.a);
 				}
 			}
             ENDCG
