@@ -36,12 +36,23 @@ public class GlobalProperties : MonoBehaviour
     public Vector3 Acceleration { get; private set; } = Vector3.zero;
     public Vector3 AngularAcceleration { get; private set; } = Vector3.zero;
 
+    private Vector3 LastLocation = Vector3.zero;
+    private Vector3 XRRigVelocity = Vector3.zero;
+
+    void Start()
+    {
+        LastLocation = XRRigTransform.position;
+    }
+
     // Update is called once per frame
     void Update()
     {
+        LastLocation = Position;
         Position = positionProperty.action.ReadValue<Vector3>() + XRRigTransform.position;
+
+        XRRigVelocity = (Position - LastLocation) / Time.deltaTime;
         Rotation = rotationProperty.action.ReadValue<Quaternion>();
-        Velocity = velocityProperty.action.ReadValue<Vector3>();
+        Velocity = velocityProperty.action.ReadValue<Vector3>() + XRRigVelocity;
         AngularVelocity = angularVelocityProperty.action.ReadValue<Vector3>();
         Acceleration = accelerationProperty.action.ReadValue<Vector3>();
         AngularAcceleration = angularAccelerationProperty.action.ReadValue<Vector3>();
