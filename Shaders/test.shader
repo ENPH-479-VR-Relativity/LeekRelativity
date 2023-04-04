@@ -391,8 +391,8 @@ Shader "LeekRelativity/test"
 					float4 data = tex2D(_MainTex, i.uv).rgba;
 					float3 rgb = data.xyz;
 
-					rgbColourShifted = rgb;
-					lumScalar = 0;
+					float3 rgbColourShifted = rgb;
+					float lumScalar = 0;
 
 					float3 rgbFinal = float3(
 						rgbColourShifted.x + (1 - rgbColourShifted.x) * lumScalar,
